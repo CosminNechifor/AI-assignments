@@ -75,7 +75,45 @@ def tinyMazeSearch(problem):
 
 # DFS implementation for pacman
 def depthFirstSearch(problem):
-    
+
+    visited = dict()
+    state = problem.getStartState()
+    frontier = util.Stack()
+
+    node = {}
+    node["parent"] = None
+    node["action"] = None
+    node["state"] = state
+    frontier.push(node)
+
+    # DFS, non-recursive implementation
+    # by non-recurisve, we need to use stack to record
+    # which node  to visit when recall
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        state = node["state"]
+        if visited.has_key(hash(state)):
+            continue
+        visited[hash(state)] = True
+
+        if problem.isGoalState(state) == True:
+            break
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                sub_node = {}
+                sub_node["parent"] = node
+                sub_node["action"] = child[1]
+                sub_node["state"] = child[0]
+                frontier.push(sub_node)
+
+    actions = []
+    while node["action"] != None:
+        actions.insert(0, node["action"])
+        node = node["parent"]
+
+    return actions
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
