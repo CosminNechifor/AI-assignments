@@ -19,6 +19,23 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
+# Defining a class node which will help  me implement the alg in a much easier way
+class CustomNode:
+    def __init__(self, parent, action, state):
+        self.parent = parent
+        self.action = action
+        self.state = state
+
+    def getParent(self):
+        return self.parent
+    def getAction(self):
+        return self.action
+    def getState(self):
+        return self.state
+
+
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -78,22 +95,19 @@ def depthFirstSearch(problem):
 
     visited = dict()
     state = problem.getStartState()
-    frontier = util.Stack()
+    stack = util.Stack()
+    node = CustomNode(None, None, state)
+    stack.push(node)
 
-    node = {}
-    node["parent"] = None
-    node["action"] = None
-    node["state"] = state
-    frontier.push(node)
+    while not stack.isEmpty():
+        node = stack.pop()
+        state = node.getState()
 
-    # DFS, non-recursive implementation
-    # by non-recurisve, we need to use stack to record
-    # which node  to visit when recall
-    while not frontier.isEmpty():
-        node = frontier.pop()
-        state = node["state"]
+        # if is visited we try something else
         if visited.has_key(hash(state)):
             continue
+
+        # we assign it as visited
         visited[hash(state)] = True
 
         if problem.isGoalState(state) == True:
@@ -101,18 +115,20 @@ def depthFirstSearch(problem):
 
         for child in problem.getSuccessors(state):
             if not visited.has_key(hash(child[0])):
-                sub_node = {}
-                sub_node["parent"] = node
-                sub_node["action"] = child[1]
-                sub_node["state"] = child[0]
-                frontier.push(sub_node)
+                # child[0] action
+                # child[1] state
+                subnode = CustomNode(node, child[1], child[0])
+                stack.push(subnode)
 
-    actions = []
-    while node["action"] != None:
-        actions.insert(0, node["action"])
-        node = node["parent"]
+    path = []
 
-    return actions
+    while node.getAction() != None:
+        path.insert(0, node.getAction())
+        node = node.getParent()
+
+    return path
+
+
 
 
 def breadthFirstSearch(problem):
