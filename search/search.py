@@ -115,13 +115,12 @@ def depthFirstSearch(problem):
 
         for child in problem.getSuccessors(state):
             if not visited.has_key(hash(child[0])):
-                # child[0] action
-                # child[1] state
-                subnode = CustomNode(node, child[1], child[0])
-                stack.push(subnode)
+                # child[0] position/state of the next node
+                # child[1] direction
+                nextNode = CustomNode(node, child[1], child[0])
+                stack.push(nextNode)
 
     path = []
-
     while node.getAction() != None:
         path.insert(0, node.getAction())
         node = node.getParent()
@@ -132,9 +131,35 @@ def depthFirstSearch(problem):
 
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = dict()
+    # getting the initial possition of the pacman
+    state = problem.getStartState()
+
+    queue = util.Queue()
+    node = CustomNode(None, None, state)
+    queue.push(node)
+
+    while not queue.isEmpty():
+        node = queue.pop()
+        state = node.getState()
+
+        if visited.has_key(state):
+            continue
+        visited[state] = True
+        # we find the point
+        if problem.isGoalState(state) == True:
+            break
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                nextNode = CustomNode(node, child[1], child[0])
+                queue.push(nextNode)
+
+    path = []
+    while node.getAction() != None:
+        path.insert(0, node.getAction())
+        node = node.getParent()
+    return path
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
