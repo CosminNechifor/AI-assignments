@@ -35,6 +35,19 @@ class CustomNode:
         return self.state
 
 
+class CustomNodeAStar(CustomNode):
+    def __init__(self, parent, action, state, cost, eval):
+        CustomNode.__init__(self, parent, action, state)
+        self.cost = cost
+        self.eval = eval
+
+    def getCost(self):
+        return self.cost
+    def getEval(self):
+        return self.eval
+
+
+
 
 class SearchProblem:
     """
@@ -174,9 +187,40 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    priorityQueue = util.PriorityQueue()
+    visited = dict()
+
+    state = problem.getStartState()
+    node = CustomNodeAStar(None, None, state, 0, heuristic(state, problem))
+    priorityQueue.push(node, node.getCost() + node.getEval())
+
+    while not priorityQueue.isEmpty():
+        node = priorityQueue.pop()
+        state = node.getState()
+        cost = node.getCost()
+        v = node.getEval()
+        print "intra\n"
+
+        if visited.has_key(state):
+            continue
+
+        visited[state] = True
+        if problem.isGoalState(state) == True:
+            break
+
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(child[0]):
+                nextNode = CustomNodeAStar(parent=node, action=child[1], state=child[0], cost= (child[2] + cost), eval=heuristic(child[0], problem))
+                priorityQueue.push(nextNode, nextNode.getCost() + node.getEval())
+
+    actions = []
+    while node.getAction() != None:
+        actions.insert(0, node.getAction())
+        node = node.getParent()
+
+    return actions
 
 
 # Abbreviations
