@@ -47,6 +47,13 @@ class CustomNodeAStar(CustomNode):
         return self.eval
 
 
+class CustomNodeUnform(CustomNode):
+    def __init__(self, parent, action, state, cost):
+        CustomNode.__init__(self, parent=parent, action=action, state=state)
+        self.cost = cost
+    def getCost(self):
+        return self.cost
+
 
 
 class SearchProblem:
@@ -175,9 +182,36 @@ def breadthFirstSearch(problem):
     return path
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = dict()
+    state = problem.getStartState()
+
+    queue = util.PriorityQueue()
+    node = CustomNodeUnform(parent=None, action=None, state=state, cost=0)
+    queue.push(node, node.getCost())
+
+    while not queue.isEmpty():
+        node = queue.pop()
+        state = node.getState()
+        cost = node.getCost()
+
+        if visited.has_key(state):
+            continue
+        visited[state] = True
+        # we find the point
+        if problem.isGoalState(state) == True:
+            break
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                # child[2] = cost
+                nextNode = CustomNodeUnform(node, child[1], child[0], cost= cost + child[2])
+                queue.push(nextNode, nextNode.getCost())
+
+    path = []
+    while node.getAction() != None:
+        path.insert(0, node.getAction())
+        node = node.getParent()
+    return path
 
 def nullHeuristic(state, problem=None):
     """
@@ -200,7 +234,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         state = node.getState()
         cost = node.getCost()
         v = node.getEval()
-        print "intra\n"
 
         if visited.has_key(state):
             continue
